@@ -40,13 +40,14 @@ function submitHandler(e) {
       form.classList.add("was-validated");
 
       const inputVal = form.input.value;
-      localStorageId += 1;
+      localStorageId ++;
       const object = {
         Id: localStorageId,
         input: inputVal,
         date: date,
         isCompleted: false,
       };
+      
       storeInput(object);
       form.input.value = "";
       todoList.innerHTML += `
@@ -78,6 +79,7 @@ function submitHandler(e) {
     `;
       const toast = new bootstrap.Toast(successNotification);
       toast.show();
+      window.location.reload()
     }
   } catch (error) {
     console.log(error);
@@ -110,6 +112,7 @@ function getInputs() {
   } else {
     myInputs = JSON.parse(localStorage.getItem("Inputs"));
     myInputs.forEach((indivisualInputs) => {
+      
       todoList.innerHTML += `
     <li class="list-group-item d-flex justify-content-between align-items-start" id="li-${
       indivisualInputs.Id
@@ -154,15 +157,21 @@ function completeTodo(localStorageId) {
     });
     localStorage.setItem("Inputs", JSON.stringify(todoArray));
 
+    // Retrieve the todo element by ID
     const todo = document.getElementById(`${localStorageId}`);
-    todo.classList.add("text-decoration-line-through");
+    if (todo) {
+      todo.classList.add("text-decoration-line-through");
+    } else {
+      console.error(`Todo with ID ${localStorageId} not found in the DOM.`);
+      return; // Exit the function if the element is not found
+    }
 
     // Update button to show "Undo" after marking as done
-    const completeButton = document.querySelector(
-      `#li-${localStorageId} .btn-success`
-    );
+    const completeButton = document.querySelector(`#li-${localStorageId} .btn-success`);
     if (completeButton) {
       completeButton.outerHTML = `<button type="button" class="btn btn-warning" id="undo-todo" onclick="unCompleteTodo(${localStorageId})"><i class="bi bi-arrow-counterclockwise"></i></button>`;
+    } else {
+      console.error(`Complete button for Todo with ID ${localStorageId} not found.`);
     }
   } catch (error) {
     console.error("Error completing todo:", error);
