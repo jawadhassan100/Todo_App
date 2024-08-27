@@ -28,11 +28,11 @@ function submitHandler(e) {
   e.preventDefault();
   try {
     if (form.input.value === "") {
-      showErrorMsg.style.display = "";
+      showErrorMsg.style.display = "block";
       showErrorMsg.innerText = "Input can't be empty";
       e.stopPropagation();
     } else if (form.input.value.length <= 4) {
-      showErrorMsg.style.display = "";
+      showErrorMsg.style.display = "block";
       showErrorMsg.innerText = "Length must be greater than 4";
       e.stopPropagation();
     } else {
@@ -78,7 +78,6 @@ function submitHandler(e) {
     `;
       const toast = new bootstrap.Toast(successNotification);
       toast.show();
-      window.location.reload()
     }
   } catch (error) {
     console.log(error);
@@ -147,18 +146,24 @@ function getInputs() {
 
 function completeTodo(localStorageId) {
   try {
-    console.log(localStorageId);
-    let todoarray = [];
-    todoarray = JSON.parse(localStorage.getItem("Inputs"));
-    todoarray.forEach((inputs) => {
+    let todoArray = JSON.parse(localStorage.getItem("Inputs"));
+    todoArray.forEach((inputs) => {
       if (localStorageId === inputs.Id) {
         inputs.isCompleted = true;
       }
     });
-    localStorage.setItem("Inputs", JSON.stringify(todoarray));
+    localStorage.setItem("Inputs", JSON.stringify(todoArray));
+
     const todo = document.getElementById(`${localStorageId}`);
     todo.classList.add("text-decoration-line-through");
-    window.location.reload();
+
+    // Update button to show "Undo" after marking as done
+    const completeButton = document.querySelector(
+      `#li-${localStorageId} .btn-success`
+    );
+    if (completeButton) {
+      completeButton.outerHTML = `<button type="button" class="btn btn-warning" id="undo-todo" onclick="unCompleteTodo(${localStorageId})"><i class="bi bi-arrow-counterclockwise"></i></button>`;
+    }
   } catch (error) {
     console.error("Error completing todo:", error);
   }
@@ -166,17 +171,24 @@ function completeTodo(localStorageId) {
 
 function unCompleteTodo(localStorageId) {
   try {
-    let todoArray = [];
-    todoArray = JSON.parse(localStorage.getItem("Inputs"));
+    let todoArray = JSON.parse(localStorage.getItem("Inputs"));
     todoArray.forEach((todo) => {
       if (localStorageId === todo.Id) {
-        todo.isCompleted = !todo.isCompleted;
+        todo.isCompleted = false;
       }
     });
     localStorage.setItem("Inputs", JSON.stringify(todoArray));
+
     const todo = document.getElementById(`${localStorageId}`);
     todo.classList.remove("text-decoration-line-through");
-    window.location.reload();
+
+    // Update button to show "Done" after unmarking
+    const undoButton = document.querySelector(
+      `#li-${localStorageId} .btn-warning`
+    );
+    if (undoButton) {
+      undoButton.outerHTML = `<button type="button" class="btn btn-success" id="complete-todo" onclick="completeTodo(${localStorageId})"><i class="bi bi-check-lg"></i></button>`;
+    }
   } catch (error) {
     console.error("Error uncompleting todo:", error);
   }
