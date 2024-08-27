@@ -78,6 +78,7 @@ function submitHandler(e) {
     `;
       const toast = new bootstrap.Toast(successNotification);
       toast.show();
+      window.location.reload()
     }
   } catch (error) {
     console.log(error);
